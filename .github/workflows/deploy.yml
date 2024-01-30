@@ -46,4 +46,5 @@ jobs:
             --header 'Referer: http://206.189.154.69:8086/onboarding/1' \
             --header 'content-type: application/json' \
             --data '{"username":"dongtran","password":"123467890","org":"test","bucket":"test"}')
-          echo result
+          echo "$result"
+
