@@ -13,14 +13,13 @@ jobs:
     - name: Remote ssh to pull and run docker
       env:
         DOCKER_COMPOSE_ENV: ${{ secrets.DOCKER_COMPOSE_ENV }}
-        TELEGRAF_CONFIG: ${{ secrets.TELEGRAF_CONFIG }}
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.SSH_HOST_NAME }}
         username: ${{ secrets.SSH_USER_NAME }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         port: ${{ secrets.SSH_PORT }}
-        envs: DOCKER_COMPOSE_ENV TELEGRAF_CONFIG
+        envs: DOCKER_COMPOSE_ENV
         script: |
           whoami
           if [ -d "/root/monitoring" ]; then
@@ -30,8 +29,6 @@ jobs:
           git clone https://github.com/dongtranthien/docker-telegraf-grafana-monitoring.git /root/monitoring
           echo $DOCKER_COMPOSE_ENV
           echo "$DOCKER_COMPOSE_ENV" > /root/monitoring/.env
-          echo $TELEGRAF_CONFIG
-          echo "$TELEGRAF_CONFIG" > /root/monitoring/telegraf.conf
           cd /root/monitoring
           docker-compose up -d
           
