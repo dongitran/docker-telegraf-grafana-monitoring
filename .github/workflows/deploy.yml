@@ -37,6 +37,7 @@ jobs:
           echo "$TELEGRAF_CONFIG" > /root/monitoring/telegraf.conf
           cd /root/monitoring
           docker-compose up -d
+          sleep 5
           
           result=$(curl --location 'http://206.189.154.69:8086/api/v2/setup' \
             --header 'Accept: */*' \
