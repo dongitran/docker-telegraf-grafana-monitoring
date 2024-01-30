@@ -13,19 +13,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Remote SSH to pull and run Docker
-        env:
-          INFLUXDB_USER_NAME: ${{ secrets.INFLUXDB_USER_NAME }}
-          INFLUXDB_PASSWORD: ${{ secrets.INFLUXDB_PASSWORD }}
-          INFLUXDB_ORGANIZATION: ${{ secrets.INFLUXDB_ORGANIZATION }}
-          INFLUXDB_BUCKET: ${{ secrets.INFLUXDB_BUCKET }}
+      - name: Set up Docker environment on remote server
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SSH_HOST_NAME }}
           username: ${{ secrets.SSH_USER_NAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
-          envs: INFLUXDB_USER_NAME, INFLUXDB_PASSWORD, INFLUXDB_ORGANIZATION, INFLUXDB_BUCKET
           script: |
             whoami
             if [ -d "/root/monitoring" ]; then
@@ -36,7 +30,15 @@ jobs:
             cd /root/monitoring
             docker-compose up -d
             sleep 5
-            
+
+      - name: Configure InfluxDB on remote server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST_NAME }}
+          username: ${{ secrets.SSH_USER_NAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
             result=$(curl --location 'http://206.189.154.69:8086/api/v2/setup' \
               --header 'Accept: */*' \
               --header 'Accept-Language: en-US,en;q=0.9,vi-VN;q=0.8,vi;q=0.7' \
@@ -44,10 +46,19 @@ jobs:
               --header 'Origin: http://206.189.154.69:8086' \
               --header 'Referer: http://206.189.154.69:8086/onboarding/1' \
               --header 'content-type: application/json' \
-              --data '{"username":"'"$INFLUXDB_USER_NAME"'","password":"'"$INFLUXDB_PASSWORD"'","org":"'"$INFLUXDB_ORGANIZATION"'","bucket":"'"$INFLUXDB_BUCKET"'"}')
+              --data '{"username":"dongtran","password":"123467890","org":"test","bucket":"test"}')
             echo "$result"
             token=$(echo "$result" | jq -r '.auth.token')
             echo "Token: $token"
+
+      - name: Create InfluxDB Telegraf configuration on remote server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST_NAME }}
+          username: ${{ secrets.SSH_USER_NAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
             influxdb_config=$(cat <<-END
               [[inputs.cpu]]
                 percpu = true
@@ -60,12 +71,21 @@ jobs:
               [[outputs.influxdb_v2]]
                 urls = ["http://influxdb:8086"]
                 token = "$token"
-                organization = "$INFLUXDB_ORGANIZATION"
-                bucket = "$INFLUXDB_BUCKET"
+                organization = "dongtran"
+                bucket = "test"
             END
             )
 
             rm -rf /root/monitoring/telegraf.conf
             echo "$influxdb_config" > /root/monitoring/telegraf.conf
 
+      - name: Restart Telegraf container on remote server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST_NAME }}
+          username: ${{ secrets.SSH_USER_NAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            cd /root/monitoring
             docker restart telegraf-monitoring
