@@ -23,6 +23,7 @@ jobs:
           script: |
             whoami
             if [ -d "/root/monitoring" ]; then
+              docker-compose -f /root/monitoring/docker-compose.yml down
               rm -rf /root/monitoring
             fi
             sudo apt-get update && sudo apt-get install -y git
