@@ -10,63 +10,63 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    - name: Remote ssh to pull and run docker
-      env:
-        INFLUXDB_USER_NAME: ${{ secrets.INFLUXDB_USER_NAME }}
-        INFLUXDB_PASSWORD: ${{ secrets.INFLUXDB_PASSWORD }}
-        INFLUXDB_ORGANIZATION: ${{ secrets.INFLUXDB_ORGANIZATION }}
-        INFLUXDB_BUCKET: ${{ secrets.INFLUXDB_BUCKET }}
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.SSH_HOST_NAME }}
-        username: ${{ secrets.SSH_USER_NAME }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
-        port: ${{ secrets.SSH_PORT }}
-        envs: INFLUXDB_USER_NAME, INFLUXDB_PASSWORD, INFLUXDB_ORGANIZATION, INFLUXDB_BUCKET
-        script: |
-          whoami
-          if [ -d "/root/monitoring" ]; then
-            rm -rf /root/monitoring
-          fi
-          sudo apt-get update && sudo apt-get install -y git
-          git clone https://github.com/dongtranthien/docker-telegraf-grafana-monitoring.git /root/monitoring
-          cd /root/monitoring
-          docker-compose up -d
-          sleep 5
-          
-          result=$(curl --location 'http://206.189.154.69:8086/api/v2/setup' \
-            --header 'Accept: */*' \
-            --header 'Accept-Language: en-US,en;q=0.9,vi-VN;q=0.8,vi;q=0.7' \
-            --header 'Connection: keep-alive' \
-            --header 'Origin: http://206.189.154.69:8086' \
-            --header 'Referer: http://206.189.154.69:8086/onboarding/1' \
-            --header 'content-type: application/json' \
-            --data '{"username":"'"$INFLUXDB_USER_NAME"'","password":"'"$INFLUXDB_PASSWORD"'","org":"'"$INFLUXDB_ORGANIZATION"'","bucket":"'"$INFLUXDB_BUCKET"'"}')
-          echo "$result"
-          echo "$result"
-          token=$(echo "$result" | jq -r '.auth.token')
-          echo "Token: $token"
-          influxdb_config='
-          [[inputs.cpu]]
-            percpu = true
-            totalcpu = true
-            collect_cpu_time = false
-            report_active = false
+      - name: Remote ssh to pull and run docker
+        env:
+          INFLUXDB_USER_NAME: ${{ secrets.INFLUXDB_USER_NAME }}
+          INFLUXDB_PASSWORD: ${{ secrets.INFLUXDB_PASSWORD }}
+          INFLUXDB_ORGANIZATION: ${{ secrets.INFLUXDB_ORGANIZATION }}
+          INFLUXDB_BUCKET: ${{ secrets.INFLUXDB_BUCKET }}
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST_NAME }}
+          username: ${{ secrets.SSH_USER_NAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          envs: INFLUXDB_USER_NAME, INFLUXDB_PASSWORD, INFLUXDB_ORGANIZATION, INFLUXDB_BUCKET
+          script: |
+            whoami
+            if [ -d "/root/monitoring" ]; then
+              rm -rf /root/monitoring
+            fi
+            sudo apt-get update && sudo apt-get install -y git
+            git clone https://github.com/dongtranthien/docker-telegraf-grafana-monitoring.git /root/monitoring
+            cd /root/monitoring
+            docker-compose up -d
+            sleep 5
+            
+            result=$(curl --location 'http://206.189.154.69:8086/api/v2/setup' \
+              --header 'Accept: */*' \
+              --header 'Accept-Language: en-US,en;q=0.9,vi-VN;q=0.8,vi;q=0.7' \
+              --header 'Connection: keep-alive' \
+              --header 'Origin: http://206.189.154.69:8086' \
+              --header 'Referer: http://206.189.154.69:8086/onboarding/1' \
+              --header 'content-type: application/json' \
+              --data '{"username":"'"$INFLUXDB_USER_NAME"'","password":"'"$INFLUXDB_PASSWORD"'","org":"'"$INFLUXDB_ORGANIZATION"'","bucket":"'"$INFLUXDB_BUCKET"'"}')
+            echo "$result"
+            echo "$result"
+            token=$(echo "$result" | jq -r '.auth.token')
+            echo "Token: $token"
+            influxdb_config='
+            [[inputs.cpu]]
+              percpu = true
+              totalcpu = true
+              collect_cpu_time = false
+              report_active = false
 
-          [[inputs.mem]]
+            [[inputs.mem]]
 
-          [[outputs.influxdb_v2]]
-            urls = ["http://influxdb:8086"]
-            token = "'"$token"'"
-            organization = "'"$INFLUXDB_ORGANIZATION"'"
-            bucket = "'"$INFLUXDB_BUCKET"'"
-          '
+            [[outputs.influxdb_v2]]
+              urls = ["http://influxdb:8086"]
+              token = "'"$token"'"
+              organization = "'"$INFLUXDB_ORGANIZATION"'"
+              bucket = "'"$INFLUXDB_BUCKET"'"
+            '
 
-          rm -rf /root/monitoring/telegraf.conf
-          echo "$influxdb_config" > /root/monitoring/telegraf.conf
+            rm -rf /root/monitoring/telegraf.conf
+            echo "$influxdb_config" > /root/monitoring/telegraf.conf
 
-          docker restart telegraf-monitoring
+            docker restart telegraf-monitoring
 
