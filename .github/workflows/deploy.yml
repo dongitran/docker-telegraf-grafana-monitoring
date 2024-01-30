@@ -1,0 +1,44 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Remote ssh to pull and run docker
+      env:
+        DOCKER_COMPOSE_ENV: ${{ secrets.DOCKER_COMPOSE_ENV }}
+        TELEGRAF_CONFIG: ${{ secrets.TELEGRAF_CONFIG }}
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.SSH_HOST_NAME }}
+        username: ${{ secrets.SSH_USER_NAME }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        port: ${{ secrets.SSH_PORT }}
+        envs: DOCKER_COMPOSE_ENV TELEGRAF_CONFIG
+        script: |
+          whoami
+          if [ -d "/root/monitoring" ]; then
+            rm -rf /root/monitoring
+          fi
+          sudo apt-get update && sudo apt-get install -y git
+          git clone https://github.com/dongtranthien/docker-telegraf-grafana-monitoring.git /root/monitoring
+          echo "$DOCKER_COMPOSE_ENV" > /root/monitoring/.env
+          echo "$TELEGRAF_CONFIG" > /root/monitoring/telegraf.conf
+          cd /root/monitoring
+          docker-compose up -d
+          
+          result=$(curl --location 'http://206.189.154.69:8086/api/v2/setup' \
+            --header 'Accept: */*' \
+            --header 'Accept-Language: en-US,en;q=0.9,vi-VN;q=0.8,vi;q=0.7' \
+            --header 'Connection: keep-alive' \
+            --header 'Origin: http://206.189.154.69:8086' \
+            --header 'Referer: http://206.189.154.69:8086/onboarding/1' \
+            --header 'content-type: application/json' \
+            --data '{"username":"dongtran","password":"123467890","org":"test","bucket":"test"}')
+          echo result
