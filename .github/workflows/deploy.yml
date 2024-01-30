@@ -23,7 +23,7 @@ jobs:
         username: ${{ secrets.SSH_USER_NAME }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         port: ${{ secrets.SSH_PORT }}
-        envs: DOCKER_COMPOSE_ENV TELEGRAF_CONFIG
+        envs: DOCKER_COMPOSE_ENV,TELEGRAF_CONFIG
         script: |
           whoami
           if [ -d "/root/monitoring" ]; then
