@@ -55,23 +55,8 @@ jobs:
               --header 'Referer: http://206.189.154.69:8086/onboarding/1' \
               --header 'content-type: application/json' \
               --data '{"username":"'"$INFLUXDB_USER_NAME"'","password":"'"$INFLUXDB_PASSWORD"'","org":"'"$INFLUXDB_ORGANIZATION"'","bucket":"'"$INFLUXDB_BUCKET"'"}')
-            echo "$result"
             token=$(echo "$result" | jq -r '.auth.token')
-            echo "::set-output name=token::$token"
 
-      - name: Create InfluxDB Telegraf configuration on remote server
-        env:
-          INFLUXDB_ORGANIZATION: ${{ secrets.INFLUXDB_ORGANIZATION }}
-          INFLUXDB_BUCKET: ${{ secrets.INFLUXDB_BUCKET }}
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.SSH_HOST_NAME }}
-          username: ${{ secrets.SSH_USER_NAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.SSH_PORT }}
-          envs: INFLUXDB_ORGANIZATION, INFLUXDB_BUCKET
-          script: |
-            token=${{ needs.configure-influxdb.outputs.token }}
             influxdb_config=$(cat <<-END
               [[inputs.cpu]]
                 percpu = true
