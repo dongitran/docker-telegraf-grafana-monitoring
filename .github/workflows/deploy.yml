@@ -57,8 +57,7 @@ jobs:
               --data '{"username":"'"$INFLUXDB_USER_NAME"'","password":"'"$INFLUXDB_PASSWORD"'","org":"'"$INFLUXDB_ORGANIZATION"'","bucket":"'"$INFLUXDB_BUCKET"'"}')
             echo "$result"
             token=$(echo "$result" | jq -r '.auth.token')
-            echo "Token: $token"
-            echo "::set-output name=token::$(echo "$result" | jq -r '.auth.token')"
+            echo "::set-output name=token::$token"
 
       - name: Create InfluxDB Telegraf configuration on remote server
         env:
