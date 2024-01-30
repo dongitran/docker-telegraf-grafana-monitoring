@@ -44,7 +44,8 @@ jobs:
             --header 'Origin: http://206.189.154.69:8086' \
             --header 'Referer: http://206.189.154.69:8086/onboarding/1' \
             --header 'content-type: application/json' \
-            --data '{"username":"dongtran","password":"123467890","org":"test","bucket":"test"}')
+            --data '{"username":"'"$INFLUXDB_USER_NAME"'","password":"'"$INFLUXDB_PASSWORD"'","org":"'"$INFLUXDB_ORGANIZATION"'","bucket":"'"$INFLUXDB_BUCKET"'"}')
+          echo "$result"
           echo "$result"
           token=$(echo "$result" | jq -r '.auth.token')
           echo "Token: $token"
