@@ -65,6 +65,7 @@ jobs:
             bucket = "'"$INFLUXDB_BUCKET"'"
           '
 
+          rm -rf /root/monitoring/telegraf.conf
           echo "$influxdb_config" /root/monitoring/telegraf.conf
 
 
