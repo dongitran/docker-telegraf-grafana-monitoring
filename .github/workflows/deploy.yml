@@ -48,4 +48,6 @@ jobs:
             --header 'content-type: application/json' \
             --data '{"username":"dongtran","password":"123467890","org":"test","bucket":"test"}')
           echo "$result"
+          token=$(echo "$result" | jq -r '.auth.token')
+          echo "Token: $token"
 
