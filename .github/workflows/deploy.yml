@@ -59,12 +59,12 @@ jobs:
 
           [[outputs.influxdb_v2]]
             urls = ["http://influxdb:8086"]
-            token = "$token"
+            token = "'"$token"'"
             organization = "dongtran"
             bucket = "test"
           '
 
-          echo $influxdb_config
+          echo "$influxdb_config" /root/monitoring/telegraf.conf
 
 
           docker restart telegraf-monitoring
