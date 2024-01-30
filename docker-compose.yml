@@ -1,6 +1,7 @@
 version: '3'
 services:
   influxdb:
+    container_name: 'influxdb-monitoring'
     image: influxdb
     ports:
       - "8086:8086"
@@ -14,6 +15,7 @@ services:
       - monitoring
 
   grafana:
+    container_name: 'grafana-monitoring'
     image: grafana/grafana
     ports:
       - "3000:3000"
@@ -25,6 +27,7 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD}
 
   telegraf:
+    container_name: 'telegraf-monitoring'
     image: telegraf
     volumes:
       - ./telegraf.conf:/etc/telegraf/telegraf.conf:ro
