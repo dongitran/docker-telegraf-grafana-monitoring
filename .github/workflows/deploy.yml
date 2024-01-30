@@ -48,7 +48,6 @@ jobs:
           echo "$result"
           token=$(echo "$result" | jq -r '.auth.token')
           echo "Token: $token"
-          sed -i 's/{token}/'"$token"'/g' /root/monitoring/telegraf.conf
           influxdb_config='
           [[inputs.cpu]]
             percpu = true
