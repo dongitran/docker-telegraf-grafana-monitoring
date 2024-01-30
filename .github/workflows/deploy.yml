@@ -13,7 +13,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Remote ssh to pull and run docker
+      - name: Remote SSH to pull and run Docker
         env:
           INFLUXDB_USER_NAME: ${{ secrets.INFLUXDB_USER_NAME }}
           INFLUXDB_PASSWORD: ${{ secrets.INFLUXDB_PASSWORD }}
@@ -46,27 +46,26 @@ jobs:
               --header 'content-type: application/json' \
               --data '{"username":"'"$INFLUXDB_USER_NAME"'","password":"'"$INFLUXDB_PASSWORD"'","org":"'"$INFLUXDB_ORGANIZATION"'","bucket":"'"$INFLUXDB_BUCKET"'"}')
             echo "$result"
-            echo "$result"
             token=$(echo "$result" | jq -r '.auth.token')
             echo "Token: $token"
-            influxdb_config='
-            [[inputs.cpu]]
-              percpu = true
-              totalcpu = true
-              collect_cpu_time = false
-              report_active = false
+            influxdb_config=$(cat <<-END
+              [[inputs.cpu]]
+                percpu = true
+                totalcpu = true
+                collect_cpu_time = false
+                report_active = false
 
-            [[inputs.mem]]
+              [[inputs.mem]]
 
-            [[outputs.influxdb_v2]]
-              urls = ["http://influxdb:8086"]
-              token = "'"$token"'"
-              organization = "'"$INFLUXDB_ORGANIZATION"'"
-              bucket = "'"$INFLUXDB_BUCKET"'"
-            '
+              [[outputs.influxdb_v2]]
+                urls = ["http://influxdb:8086"]
+                token = "$token"
+                organization = "$INFLUXDB_ORGANIZATION"
+                bucket = "$INFLUXDB_BUCKET"
+            END
+            )
 
             rm -rf /root/monitoring/telegraf.conf
             echo "$influxdb_config" > /root/monitoring/telegraf.conf
 
             docker restart telegraf-monitoring
-
