@@ -28,9 +28,9 @@ jobs:
           fi
           sudo apt-get update && sudo apt-get install -y git
           git clone https://github.com/dongtranthien/docker-telegraf-grafana-monitoring.git /root/monitoring
-          echo DOCKER_COMPOSE_ENV
+          echo $DOCKER_COMPOSE_ENV
           echo "$DOCKER_COMPOSE_ENV" > /root/monitoring/.env
-          echo TELEGRAF_CONFIG
+          echo $TELEGRAF_CONFIG
           echo "$TELEGRAF_CONFIG" > /root/monitoring/telegraf.conf
           cd /root/monitoring
           docker-compose up -d
