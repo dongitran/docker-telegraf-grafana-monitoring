@@ -10,6 +10,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
     - name: Remote ssh to pull and run docker
       env:
         DOCKER_COMPOSE_ENV: ${{ secrets.DOCKER_COMPOSE_ENV }}
