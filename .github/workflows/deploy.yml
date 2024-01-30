@@ -48,5 +48,24 @@ jobs:
           token=$(echo "$result" | jq -r '.auth.token')
           echo "Token: $token"
           sed -i 's/{token}/'"$token"'/g' /root/monitoring/telegraf.conf
+          influxdb_config='
+          [[inputs.cpu]]
+            percpu = true
+            totalcpu = true
+            collect_cpu_time = false
+            report_active = false
+
+          [[inputs.mem]]
+
+          [[outputs.influxdb_v2]]
+            urls = ["http://influxdb:8086"]
+            token = "$token"
+            organization = "dongtran"
+            bucket = "test"
+          '
+
+          echo $influxdb_config
+
+
           docker restart telegraf-monitoring
 
