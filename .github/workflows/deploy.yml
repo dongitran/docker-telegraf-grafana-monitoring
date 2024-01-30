@@ -15,7 +15,6 @@ jobs:
 
     - name: Remote ssh to pull and run docker
       env:
-        DOCKER_COMPOSE_ENV: ${{ secrets.DOCKER_COMPOSE_ENV }}
         TELEGRAF_CONFIG: ${{ secrets.TELEGRAF_CONFIG }}
       uses: appleboy/ssh-action@master
       with:
@@ -23,7 +22,7 @@ jobs:
         username: ${{ secrets.SSH_USER_NAME }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         port: ${{ secrets.SSH_PORT }}
-        envs: DOCKER_COMPOSE_ENV,TELEGRAF_CONFIG
+        envs: TELEGRAF_CONFIG
         script: |
           whoami
           if [ -d "/root/monitoring" ]; then
@@ -31,14 +30,6 @@ jobs:
           fi
           sudo apt-get update && sudo apt-get install -y git
           git clone https://github.com/dongtranthien/docker-telegraf-grafana-monitoring.git /root/monitoring
-          echo DOCKER_COMPOSE_ENV
-          echo "INFLUXDB_DB=telegraf
-          INFLUXDB_ADMIN_USER=admin
-          INFLUXDB_ADMIN_PASSWORD=admin
-          INFLUXDB_USER=telegraf
-          INFLUXDB_USER_PASSWORD=telegraf
-          GF_SECURITY_ADMIN_PASSWORD=admin
-          " > /root/monitoring/.env
           echo TELEGRAF_CONFIG
           echo "$TELEGRAF_CONFIG" > /root/monitoring/telegraf.conf
           cd /root/monitoring
