@@ -65,8 +65,7 @@ jobs:
           '
 
           rm -rf /root/monitoring/telegraf.conf
-          echo "$influxdb_config" /root/monitoring/telegraf.conf
-
+          echo "$influxdb_config" > /root/monitoring/telegraf.conf
 
           docker restart telegraf-monitoring
 
