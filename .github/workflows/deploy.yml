@@ -80,6 +80,7 @@ jobs:
             serviceAccountResult=$(curl -X POST -H "Content-Type: application/json" -d '{"name":"test", "role": "Admin"}' http://admin:admin@localhost:3000/api/serviceaccounts)
             serviceAccountId=$(echo "$serviceAccountResult" | jq -r '.id')
             echo $serviceAccountId
+            echo "http://admin:admin@localhost:3000/api/serviceaccounts/'"$serviceAccountId"'/tokens"
             tokenResult=$(curl -X POST -H "Content-Type: application/json" -d '{"name":"test-token"}' http://admin:admin@localhost:3000/api/serviceaccounts/'"$serviceAccountId"'/tokens)
             echo $tokenResult
 
