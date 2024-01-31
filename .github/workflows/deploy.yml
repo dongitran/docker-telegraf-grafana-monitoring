@@ -81,6 +81,7 @@ jobs:
             serviceAccountId=$(echo "$serviceAccountResult" | jq -r '.id')
             tokenResult=$(curl -X POST -H "Content-Type: application/json" -d '{"name":"test-token"}' http://admin:admin@localhost:3000/api/serviceaccounts/"$serviceAccountId"/tokens)
             apiToken=$(echo "$tokenResult" | jq -r '.key')
+            echo $apiToken
             createDataSourceResult=$(curl --location 'http://localhost:3000/api/datasources' --header 'Authorization: Bearer '"$apiToken"'' --header 'Content-Type: application/json' --data '{"name":"InfluxDB","type":"influxdb","url":"http://influxdb:8086","access":"proxy","isDefault":true,"database":"test","basicAuth": true,"secureJsonData": {"token": "'"$token"'"},"readOnly": false,"jsonData": {"version": "Flux","organization": "my_org"}}')
             echo $createDataSourceResult
 
