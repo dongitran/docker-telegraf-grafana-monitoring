@@ -80,6 +80,8 @@ jobs:
             serviceAccountResult=$(curl -X POST -H "Content-Type: application/json" -d '{"name":"test", "role": "Admin"}' http://admin:admin@localhost:3000/api/serviceaccounts)
             serviceAccountId=$(echo "$serviceAccountResult" | jq -r '.id')
             echo $serviceAccountId
+            tokenResult=$(curl -X POST -H "Content-Type: application/json" -d '{"name":"test-token"}' http://admin:admin@localhost:3000/api/serviceaccounts/'"$serviceAccountId"'/tokens)
+            echo $tokenResult
 
       - name: Restart Telegraf container on remote server
         uses: appleboy/ssh-action@master
