@@ -85,7 +85,7 @@ jobs:
             echo $tokenResult
             apiToken=$(echo "$tokenResult" | jq -r '.key')
             echo $apiToken
-            echo 'curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer '"$apiToken"'" -d '\''{"name":"InfluxDB10","type":"influxdb","url":"http://influxdb:8086","access":"proxy","isDefault":true,"database":"test","basicAuth":true,"secureJsonData":{"token":"'"$token"'"},"readOnly":false,"jsonData":{"version":"Flux","organization":"my_org"}}'\'' http://localhost:3000/api/datasources'
+            echo 'curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer '"$apiToken"'" -d '\''{"name":"InfluxDB10","type":"influxdb","url":"http://influxdb:8086","access":"proxy","isDefault":true,"database":"test","basicAuth":true,"secureJsonData":{"token":"'"$token"'"},"readOnly":false,"jsonData":{"version":"Flux","organization":"my_org"}}'\'' http://localhost:3000/api/datasources' > /root/monitoring/test.conf
             createDataSourceResult=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer "$apiToken"" -d '{"name":"InfluxDB10","type":"influxdb","url":"http://influxdb:8086","access":"proxy","isDefault":true,"database":"test","basicAuth":true,"secureJsonData":{"token":""$token""},"readOnly":false,"jsonData":{"version":"Flux","organization":"my_org"}}' http://localhost:3000/api/datasources)
             echo $createDataSourceResult
 
