@@ -79,15 +79,9 @@ jobs:
 
             serviceAccountResult=$(curl -X POST -H "Content-Type: application/json" -d '{"name":"test", "role": "Admin"}' http://admin:admin@localhost:3000/api/serviceaccounts)
             serviceAccountId=$(echo "$serviceAccountResult" | jq -r '.id')
-            echo $serviceAccountId
-            echo "http://admin:admin@localhost:3000/api/serviceaccounts/"$serviceAccountId"/tokens"
             tokenResult=$(curl -X POST -H "Content-Type: application/json" -d '{"name":"test-token"}' http://admin:admin@localhost:3000/api/serviceaccounts/"$serviceAccountId"/tokens)
-            echo $tokenResult
             apiToken=$(echo "$tokenResult" | jq -r '.key')
-            echo $apiToken
-            echo 'curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer '"$apiToken"'" -d '\''{"name":"InfluxDB10","type":"influxdb","url":"http://influxdb:8086","access":"proxy","isDefault":true,"database":"test","basicAuth":true,"secureJsonData":{"token":"'"$token"'"},"readOnly":false,"jsonData":{"version":"Flux","organization":"my_org"}}'\'' http://localhost:3000/api/datasources' > /root/monitoring/test.conf
-            echo 'curl --location 'http://localhost:3000/api/datasources' --header 'Authorization: Bearer '"$apiToken"'' --header 'Content-Type: application/json' --data '{    "name":"InfluxDB10",    "type":"influxdb",    "url":"http://influxdb:8086",    "access":"proxy",    "isDefault":true,    "database":"test",    "basicAuth": true,    "secureJsonData": {        "token": "'"$token"'"    },    "readOnly": false,    "jsonData": {        "version": "Flux",        "organization": "my_org"    }}'' > /root/monitoring/b.conf
-            createDataSourceResult=$(curl --location 'http://localhost:3000/api/datasources' --header 'Authorization: Bearer '"$apiToken"'' --header 'Content-Type: application/json' --data '{    "name":"InfluxDB10",    "type":"influxdb",    "url":"http://influxdb:8086",    "access":"proxy",    "isDefault":true,    "database":"test",    "basicAuth": true,    "secureJsonData": {        "token": "'"$token"'"    },    "readOnly": false,    "jsonData": {        "version": "Flux",        "organization": "my_org"    }}')
+            createDataSourceResult=$(curl --location 'http://localhost:3000/api/datasources' --header 'Authorization: Bearer '"$apiToken"'' --header 'Content-Type: application/json' --data '{"name":"InfluxDB","type":"influxdb","url":"http://influxdb:8086","access":"proxy","isDefault":true,"database":"test","basicAuth": true,"secureJsonData": {"token": "'"$token"'"},"readOnly": false,"jsonData": {"version": "Flux","organization": "my_org"}}')
             echo $createDataSourceResult
 
       - name: Restart Telegraf container on remote server
